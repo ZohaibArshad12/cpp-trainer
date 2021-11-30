@@ -18,7 +18,7 @@ import Problem from "../components/Problem";
 import CodeEditor from "../components/CodeEditor";
 import { FaCheckCircle } from "react-icons/fa";
 
-function Exersice({done}) {
+function ExersiceDone() {
 
 
   return (
@@ -30,7 +30,7 @@ function Exersice({done}) {
       <Typography variant="h4" gutterBottom style={{marginTop:"10px"}}>
        Exercise Title (difficulty) 
       </Typography>
-      {done?<FaCheckCircle style={{color:"green",marginTop:"5px",marginLeft:"10px"}} size={30}/>:""}
+      <FaCheckCircle style={{color:"green",marginTop:"5px",marginLeft:"10px"}} size={30}/>
      </div>
       <Split
         className="flex"
@@ -71,4 +71,4 @@ function Exersice({done}) {
   );
 }
 
-export default Exersice;
+export default ExersiceDone;

@@ -1,9 +1,6 @@
 import * as React from "react";
 import styled, { withTheme } from "styled-components/macro";
 import { darken } from "polished";
-import { Search as SearchIcon } from "react-feather";
-import { useTranslation } from "react-i18next";
-
 import {
   Grid,
   Hidden,
@@ -13,6 +10,7 @@ import {
   Toolbar,
   Button,
 } from "@mui/material";
+import {Link} from "react-router-dom";
 
 import { Menu as MenuIcon } from "@mui/icons-material";
 
@@ -84,7 +82,7 @@ const Navbar = ({ onDrawerToggle }) => {
         console.log("hello");
         navigate("/Exercise-List");
     }
-  const { t } = useTranslation();
+ 
   return (
     <React.Fragment>
       <AppBar position="sticky" elevation={0}>
@@ -112,7 +110,8 @@ const Navbar = ({ onDrawerToggle }) => {
             </Grid>
             <Grid item xs />
             <Grid item>
-              <Button style={{color:"white",marginRight:"20px"}} size="large" onClick={()=>{nextPath()}}  >Exercises</Button>
+            <Link style={{color: 'white',fontSize:'13pt',textDecoration: 'none',marginRight:'30px'}} to="/Exercise-List">Exercises</Link>
+
               <NavbarUserDropdown />
             </Grid>
           </Grid>

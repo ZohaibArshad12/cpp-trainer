@@ -15,35 +15,39 @@ import {
 import { spacing } from "@mui/system";
 import { FaCheckCircle } from "react-icons/fa";
 import "../css/card.css";
-import { useNavigate  } from "react-router-dom";
+import { Navigate,useNavigate  } from "react-router-dom";
 
 const Card = styled(MuiCard)(spacing);
 
 const CardHeader = styled(MuiCardHeader)(spacing);
+
 
 function MyCard({title,exersice}) {
 
     let navigate = useNavigate();
 
     const nextPath = (done) =>{
-           navigate("/exersice",{done});
-       
+      if(!done)
+      {    
+      navigate("/exersice");
+      }
+      else
+      {
+        navigate("/exersice-done");
+
+      }    
         
     }
 
   return (
-    <Card className="card" p={5} style={{ height: "400px"}}>
-    <CardHeader
-      title={title}
-      titleTypographyProps={{ align: "center" }}
-      pb={0}
-      pt={2}
-    />
-    <CardContent>
-    {exersice.map((ex) => {
+    <div className="exercise" style={{ height: "400px"}}>
+       <Typography variant="h4" gutterBottom style={{textAlign:"center"}}>
+        {title}
+      </Typography>
+       {exersice.map((ex) => {
 
 return( 
-    <div >
+  <div >
   <Button
    fullWidth
    variant="outlined"
@@ -62,9 +66,8 @@ return(
       
     
            
-    </CardContent>
-    <CardActions></CardActions>
-  </Card>
+    
+  </div>
   );
 }
 
