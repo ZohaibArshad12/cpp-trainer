@@ -1,0 +1,4030 @@
+{
+    "metadata": {
+        "service": "codebuild",
+        "csp": "aws",
+        "version": "20210128"
+    },
+    "scorecard": {
+        "global_assurance_program": {
+            "score": "6 out of 6",
+            "info": "https://aws.amazon.com/compliance/services-in-scope/"
+        },
+        "specific_assurance_program": {
+            "score": "15 out of 16",
+            "info": null
+        },
+        "identity_management": {
+            "score": "AWS IAM, OAuth,<br>Personal Access Token",
+            "info": null
+        },
+        "resource_based": {
+            "score": "Yes (for RAM)",
+            "info": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_actions-resources-contextkeys.html"
+        },
+        "network_filtering": {
+            "score": "Security Group for VPC mode",
+            "info": null
+        },
+        "encryption_at_rest": {
+            "score": "Yes for Artifact, logs, cache,<br>report exports",
+            "info": null
+        },
+        "encryption_in_transit": {
+            "score": "Yes",
+            "info": null
+        },
+        "aws_cloudformation": {
+            "score": "<a href=\"https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_CodeBuild.html\">3</a>",
+            "info": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html"
+        },
+        "aws_tag_based_abac": {
+            "score": "Partial",
+            "info": null
+        },
+        "aws_cloudwatch_events": {
+            "score": "<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/sample-build-notifications.html\">Build notifications</a><br> + via CloudTrail",
+            "info": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html"
+        },
+        "aws_vpc_endpoint": {
+            "score": "Yes",
+            "info": "https://docs.aws.amazon.com/vpc/latest/userguide/integrated-services-vpce-list.html"
+        },
+        "aws_vpc_endpoint_policy": {
+            "score": "Yes",
+            "info": null
+        },
+        "aws_resource_level": {
+            "score": "Yes",
+            "info": null
+        },
+        "gcp_vpc_service_controls": {
+            "score": "-",
+            "info": null
+        },
+        "number_of_actions": {
+            "score": 54,
+            "info": null
+        },
+        "number_of_iam_permissions": {
+            "score": 53,
+            "info": null
+        },
+        "number_of_events": {
+            "score": 54,
+            "info": null
+        },
+        "event_coverage": {
+            "score": "100.0",
+            "info": null
+        },
+        "api_without_event": {
+            "score": 0,
+            "info": null
+        }
+    },
+    "control_objectives": {
+        "Codebuild.CO1": {
+            "description": "Prevent CodeBuild projects to communicate directly from the Service team AWS accounts by launching projects in authorized and secure VPC only"
+        },
+        "Codebuild.CO2": {
+            "description": "Launch CodeBuild projects in subnets with sufficient IP space"
+        },
+        "Codebuild.CO3": {
+            "description": "Launch CodeBuild projects in subnets with sufficient AZ redundancy"
+        },
+        "Codebuild.CO4": {
+            "description": "Protect the buildspec content and injection process"
+        },
+        "Codebuild.CO5": {
+            "description": "Fetch the source(s) in TLS/SSL"
+        },
+        "Codebuild.CO6": {
+            "description": "Keep encryption enabled for artifacts, logs and cache, and use authorized KMS keys"
+        },
+        "Codebuild.CO7": {
+            "description": "Use a dedicated IAM service role for each CodeBuild project"
+        },
+        "Codebuild.CO8": {
+            "description": "Log the output of CodeBuild projects in a secure location"
+        },
+        "Codebuild.CO9": {
+            "description": "Limit the IAM entities allowed to execute the IAM actions required to perform the attack, including limiting them to VPC when possible"
+        },
+        "Codebuild.CO10": {
+            "description": "Attach only authorized EFS filesystems to CodeBuild projects"
+        },
+        "Codebuild.CO11": {
+            "description": "Protect how RAM is used to share"
+        },
+        "Codebuild.CO12": {
+            "description": "Store sensitive environment variables appropriately"
+        },
+        "Codebuild.CO13": {
+            "description": "Run build on authorized container image(s) only"
+        },
+        "Codebuild.CO14": {
+            "description": "Connect to ECR only via IAM roles if same AWS account (and not directly)"
+        },
+        "Codebuild.CO15": {
+            "description": "Control the built-in explicit proxy of CodeBuild"
+        },
+        "Codebuild.CO16": {
+            "description": "Limit session-enabled builds and control session access"
+        },
+        "Codebuild.CO17": {
+            "description": "Use a dedicated IAM service role for each build batch"
+        },
+        "Codebuild.CO18": {
+            "description": "Protect CodeBuild report exports"
+        },
+        "Codebuild.CO19": {
+            "description": "Control artifact(s) pushed to S3"
+        },
+        "Codebuild.CO20": {
+            "description": "Deploy only authorized projects to be publicly-visble and attach only a dedicated IAM service role to them"
+        },
+        "Codebuild.CO21": {
+            "description": "Ensure only need-to-know information about the builds are shared with the source providers"
+        }
+    },
+    "threats": {
+        "Codebuild.T1": {
+            "feature_class": "Codebuild.FC1",
+            "name": "Exfiltrate data or elevate privilege by creating a malicious build (by creating a new project, changing a project or overwriting it at build)",
+            "description": "Builds are using sources, filesystem, images, and buildspecs as input and execute instruction for output. It can be overwritten (all but the filesystem) when starting the build or reconfiguring the project. An attacker can change the behavior of the build by modifying the buildspec in order to exfiltrate data (e.g. calling an external endpoint, accessing other S3 buckets/code commit, adding confidential data in the artifact/report/logs, modifying the name of the artifact to include confidential data), or elevate privilege using the IAM service role.",
+            "access": {
+                "OR": [
+                    {
+                        "AND": [
+                            "codebuild:CreateProject",
+                            "iam:PassRole"
+                        ]
+                    },
+                    "codebuild:UpdateProject",
+                    "codebuild:StartBuild"
+                ]
+            },
+            "hlgoal": "DataTheft",
+            "mitre_attack": "TA0010",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:C/C:H/I:L/A:L",
+            "retired": "false",
+            "cvss_severity": "Medium",
+            "cvss_score": 6.7
+        },
+        "Codebuild.T2": {
+            "feature_class": "Codebuild.FC1",
+            "name": "Denial of Service by exhausting the number of IPs in subnets used by a CodeBuild project build",
+            "description": "When the CodeBuild is launched in the VPC, a network interface is created in one subnet configured in the build, even if several are configured. By default the limit of concurrent build is 60 (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/limits.html\">ref</a>). An attacker can launch several builds to exhaust the number of IP available in order to disrupt other processes using the same range of IPs.",
+            "access": {
+                "UNIQUE": "codebuild:StartBuild"
+            },
+            "hlgoal": "DoS",
+            "mitre_attack": "TA0040",
+            "cvss": "CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:N/I:N/A:L",
+            "retired": "false",
+            "cvss_severity": "Low",
+            "cvss_score": 2.0
+        },
+        "Codebuild.T3": {
+            "feature_class": "Codebuild.FC1",
+            "name": "Access to sensitive data in environment variables",
+            "description": "Environment variables are used to abstract certain values from the build, including secrets. An attacker can discover secrets if not appropriately secured.",
+            "access": {
+                "OR": [
+                    "codebuild:BatchGetBuilds",
+                    "codebuild:BatchGetProjects"
+                ]
+            },
+            "hlgoal": "DataTheft",
+            "mitre_attack": "TA0009",
+            "cvss": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:C/C:H/I:N/A:N",
+            "retired": "false",
+            "cvss_severity": "Medium",
+            "cvss_score": 5.9
+        },
+        "Codebuild.T4": {
+            "feature_class": "Codebuild.FC4",
+            "name": "Use the build status to exfiltrate data (Bitbucket or GitHub via creds)",
+            "description": "CodeBuild allows project owners to communicate a free field to Bitbucket or GitHub for the commit status. An attacker can modify the value to exfiltrate data toward a source code repository they register with credentials in CodeBuild (or a public repo you created).",
+            "access": {
+                "AND": [
+                    "codebuild:ImportSourceCredentials",
+                    {
+                        "OR": [
+                            {
+                                "AND": [
+                                    "codebuild:CreateProject",
+                                    "iam:PassRole"
+                                ]
+                            },
+                            "codebuild:UpdateProject",
+                            "codebuild:StartBuild"
+                        ]
+                    }
+                ]
+            },
+            "hlgoal": "DataTheft",
+            "mitre_attack": "TA0010",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:L/I:N/A:N",
+            "retired": "false",
+            "cvss_severity": "Low",
+            "cvss_score": 1.9
+        },
+        "Codebuild.T5": {
+            "feature_class": "Codebuild.FC1",
+            "name": "Run a poisoned image to affect the build, run cryptomining or steal information",
+            "description": "CodeBuild uses containers to run the build, where you decide the image to run on. An attacker can affect an image to affect the build, run cryptomining or steal data.",
+            "access": {
+                "UNIQUE": "codebuild:UpdateProject"
+            },
+            "hlgoal": "DataManipulation",
+            "mitre_attack": "TA0040",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:C/C:L/I:L/A:N",
+            "retired": "false",
+            "cvss_severity": "Medium",
+            "cvss_score": 4.1
+        },
+        "Codebuild.T6": {
+            "feature_class": "Codebuild.FC5",
+            "name": "Recon on CodeBuild resources with RAM",
+            "description": "CodeBuild can use RAM to share CodeBuild projects or resource groups. It is in view-only mode only. An attacker can use those information to do reconnaissance about the CodeBuild projects and report groups.",
+            "access": {
+                "AND": [
+                    {
+                        "OR": [
+                            "ram:CreateResourceShare",
+                            "ram:UpdateResourceShare"
+                        ]
+                    },
+                    "codebuild:PutResourcePolicy"
+                ]
+            },
+            "hlgoal": "LaunchAttack",
+            "mitre_attack": "TA0007",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:L/I:N/A:N",
+            "retired": "false",
+            "cvss_severity": "Low",
+            "cvss_score": 1.9
+        },
+        "Codebuild.T7": {
+            "feature_class": "Codebuild.FC1",
+            "name": "Bypass routing table via proxy",
+            "description": "CodeBuild can proxy requests, including logs and artifacts. An attacker can use a proxy to bypass network security from CodeBuild.",
+            "access": {
+                "OR": [
+                    {
+                        "AND": [
+                            "codebuild:CreateProject",
+                            "iam:PassRole"
+                        ]
+                    },
+                    "codebuild:UpdateProject",
+                    "codebuild:StartBuild"
+                ]
+            },
+            "hlgoal": "DataTheft",
+            "mitre_attack": "TA0010",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:N/I:H/A:N",
+            "retired": "false",
+            "cvss_severity": "Medium",
+            "cvss_score": 4.1
+        },
+        "Codebuild.T8": {
+            "feature_class": "Codebuild.FC3",
+            "name": "Use the build status to exfiltrate data (Bitbucket or GitHub via OAuth)",
+            "description": "CodeBuild allows project owners to communicate a free field to Bitbucket or GitHub for the commit status. An attacker can modify the value to exfiltrate data toward a source code repository they register with OAuth in CodeBuild (or a public repo you created).",
+            "access": {
+                "AND": [
+                    "codebuild:PersistOAuthToken",
+                    {
+                        "OR": [
+                            {
+                                "AND": [
+                                    "codebuild:CreateProject",
+                                    "iam:PassRole"
+                                ]
+                            },
+                            "codebuild:UpdateProject",
+                            "codebuild:StartBuild"
+                        ]
+                    }
+                ]
+            },
+            "hlgoal": "DataTheft",
+            "mitre_attack": "TA0010",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:U/C:L/I:N/A:N",
+            "retired": "false",
+            "cvss_severity": "Low",
+            "cvss_score": 1.9
+        },
+        "Codebuild.T9": {
+            "feature_class": "Codebuild.FC1",
+            "name": "Elevate privilege via the Session Manager",
+            "description": "CodeBuild allows users to connect to the build container (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/session-manager.html\">ref</a>), requiring specific SSM permission on the IAM service role and configuring debugSessionEnabled at start of the build, and add a special CodeBuild command to pause the build. An attacker can connect to the build container and run commands to modify the build or use the IAM service role permissions.",
+            "access": {
+                "AND": [
+                    "codebuild:StartBuild",
+                    "ssm:StartSession"
+                ]
+            },
+            "hlgoal": "LaunchAttack",
+            "mitre_attack": "TA0004",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:C/C:L/I:L/A:L",
+            "retired": "false",
+            "cvss_severity": "Medium",
+            "cvss_score": 5.0
+        },
+        "Codebuild.T10": {
+            "feature_class": "Codebuild.FC7",
+            "name": "Unauthorized execution of a build via BuildBatch",
+            "description": "StartBuild permission enables several threats. An attacker can use the BuildBatch to execute attacks on CodeBuild with StartBuild.",
+            "access": {
+                "AND": [
+                    "codebuild:StartBuildBatch",
+                    {
+                        "OPTIONAL": {
+                            "OR": [
+                                "ssm:StartSession",
+                                {
+                                    "AND": [
+                                        "codebuild:ImportSourceCredentials",
+                                        {
+                                            "OR": [
+                                                {
+                                                    "AND": [
+                                                        "codebuild:CreateProject",
+                                                        "iam:PassRole"
+                                                    ]
+                                                },
+                                                "codebuild:UpdateProject"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "AND": [
+                                        "codebuild:PersistOAuthToken",
+                                        {
+                                            "OR": [
+                                                {
+                                                    "AND": [
+                                                        "codebuild:CreateProject",
+                                                        "iam:PassRole"
+                                                    ]
+                                                },
+                                                "codebuild:UpdateProject"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "hlgoal": "LaunchAttack",
+            "mitre_attack": "TA0004",
+            "cvss": "CVSS:3.1/AV:L/AC:H/PR:H/UI:N/S:C/C:H/I:L/A:L",
+            "retired": "false",
+            "cvss_severity": "Medium",
+            "cvss_score": 6.7
+        },
+        "Codebuild.T11": {
+            "feature_class": "Codebuild.FC8",
+            "name": "Unauthorized public project",
+            "description": "When you enable public build access, your build results, including logs and artifacts, are accessible to the general public. An attacker (or someone by negligence) can enable public access, revealing potentially confidential information.",
+            "access": {
+                "AND": [
+                    "codebuild:UpdateProjectVisibility",
+                    "iam:PassRole"
+                ]
+            },
+            "hlgoal": "DataTheft",
+            "mitre_attack": "TA0010",
+            "cvss": "CVSS:3.1/AV:A/AC:L/PR:H/UI:R/S:U/C:H/I:N/A:N",
+            "retired": "false",
+            "cvss_severity": "Medium",
+            "cvss_score": 4.3
+        }
+    },
+    "controls": {
+        "Codebuild.C1": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "Codebuild.C4",
+            "dependency": "",
+            "description": "Enforce CodeBuild in VPC by abstracting the creation of CodeBuild as part of the infrastructure-as-code. No native mechanism prevents the creation of a CodeBuild not in VPC.",
+            "testing": "Request the process and records of enforcing CodeBuild in VPC",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very High",
+                    "priority": 4.0,
+                    "max_dependency": null,
+                    "priority_overall": 4.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "High",
+            "weighted_priority_score": 3,
+            "queryable_objective_id": 1,
+            "queryable_id": 1
+        },
+        "Codebuild.C2": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor that CodeBuild project configuration includes VPC configuration (CreateProject, UpdateProject) with the CloudTrail log (responseElements.project.source.vpcConfig exists)",
+            "testing": "Create/update a CodeBuild project without VPC configuration, it should be detected",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 1,
+            "queryable_id": 2
+        },
+        "Codebuild.C3": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor that CodeBuild project during build includes VPC configuration using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.build.source.vpcConfig exists)",
+            "testing": "Run a build without VPC configuration, it should be detected",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 1,
+            "queryable_id": 3
+        },
+        "Codebuild.C4": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify all CodeBuild projects are in VPC.",
+            "testing": "Create a CodeBuild project not in VPC, it should be detected.",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "High",
+            "weighted_priority_score": 3,
+            "queryable_objective_id": 1,
+            "queryable_id": 4
+        },
+        "Codebuild.C5": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized VPCs, subnets and Security Groups by CodeBuild project",
+            "testing": "Request the list of all authorized VPC and subnets by CodeBuild projects, its review process and its review records",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 4.0,
+                    "priority_overall": 4.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 4.0,
+                    "priority_overall": 4.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "High",
+            "weighted_priority_score": 3,
+            "queryable_objective_id": 1,
+            "queryable_id": 5
+        },
+        "Codebuild.C72": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "Codebuild.C6",
+            "dependency": "Codebuild.C5",
+            "description": "Ensure CodeBuild projects are only in authorized VPCs/subnets, with authorized Security Groups",
+            "testing": "Request the mechanism ensuring CodeBuild projects are only in authorized VPCs and subnets, with authorized Security Groups, and the evidence of its execution",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 1,
+            "queryable_id": 72
+        },
+        "Codebuild.C6": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify all CodeBuild projects are configured in an authorized VPC, subnets and Security Groups",
+            "testing": "Create a CodeBuild project in an unauthorized 1) VPC, 2) subnet, or 3) Security Group, it should be detected.",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 1,
+            "queryable_id": 6
+        },
+        "Codebuild.C7": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO2",
+            "retired": "false",
+            "assurance": "Codebuild.C8",
+            "dependency": "Codebuild.C5",
+            "description": "Define and enforce a required minimum number of available IP addresses in CodeBuild-authorized VPC and subnets for the maximum number of concurrent build execution (default: 60).",
+            "testing": "Request the definition and enforcement process of a minimum number of available IP addresses in CodeBuild-authorized VPC and subnets.",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "Very High",
+                    "priority": 4.0,
+                    "max_dependency": null,
+                    "priority_overall": 4.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 2,
+            "queryable_id": 7
+        },
+        "Codebuild.C8": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO2",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify all subnets used by CodeBuild projects have the minimum number of IP addresses available for the maximum number of concurrent build execution (default: 60).",
+            "testing": "Create a CodeBuild project not in subnet with limited IP space availability, it should be detected.",
+            "effort": "Very High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 2,
+            "queryable_id": 8
+        },
+        "Codebuild.C9": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO3",
+            "retired": "false",
+            "assurance": "Codebuild.C10",
+            "dependency": "",
+            "description": "Define and implement a number of required AZ/subnets per CodeBuild project depending on the availability requirements (note: you may use a default value to simplify governance, e.g. 3 different subnets in 3 different AZs per project)",
+            "testing": "Request the governance of the availability of CodeBuild projects by AZs.",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 3,
+            "queryable_id": 9
+        },
+        "Codebuild.C10": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO3",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify all CodeBuild projects are configured in defined numbers of AZs.",
+            "testing": "Create a CodeBuild project configured with not enough number of AZs, it should be detected.",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 3,
+            "queryable_id": 10
+        },
+        "Codebuild.C11": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO1",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C5",
+            "description": "Direct that the network interfaces created by CodeBuild are protected using the VPC ThreatModel",
+            "testing": "Request the VPC ThreatModel and the evidence of its application to the network interfaces created by CodeBuild",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 1,
+            "queryable_id": 11
+        },
+        "Codebuild.C12": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO4",
+            "retired": "false",
+            "assurance": "Codebuild.C13",
+            "dependency": "",
+            "description": "Enforce usage the version 0.2 in buildspec",
+            "testing": "Request the process and records of enforcing buildspec v0.2",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 4,
+            "queryable_id": 12
+        },
+        "Codebuild.C13": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO4",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify all buildspec use v0.2",
+            "testing": "Create a buildpec in v0.1, it should be detected",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 4,
+            "queryable_id": 13
+        },
+        "Codebuild.C14": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO2",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor abnormal behavior on the number of builds (e.g. using the CloudWatch metric \"Builds\" with abnormally detection)",
+            "testing": "Create a sudden high number of build, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 2,
+            "queryable_id": 14
+        },
+        "Codebuild.C15": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO2",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor failed build with the INSUFFICIENT_SUBNET error (e.g. in CW logs or CW events)",
+            "testing": "Create a build in a full subnet, it should be detected.",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 2,
+            "queryable_id": 15
+        },
+        "Codebuild.C16": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO5",
+            "retired": "false",
+            "assurance": "Codebuild.C19",
+            "dependency": "",
+            "description": "Enforce review on TLS/SSL warnings on source code by setting the insecureSsl configuration to False on all primary and secondary sources",
+            "testing": "Request the process and records of enforcing the insecureSsl configuration to False",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 5,
+            "queryable_id": 16
+        },
+        "Codebuild.C17": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO5",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor that CodeBuild project configuration ensures valid TLS/SSL on source code using the CloudTrail events (CreateProject, UpdateProject) with the CloudTrail log (responseElements.project.source.insecureSsl = False and if secondarySources is not empty, then responseElements.project.secondarySources.insecureSsl = False)",
+            "testing": "Create/update a CodeBuild project with insecureSsl sets to False, it should be detected",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 5,
+            "queryable_id": 17
+        },
+        "Codebuild.C18": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO5",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor that CodeBuild project during build ensures valid TLS/SSL on source code using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.source.insecureSsl = False)",
+            "testing": "Run a build with insecureSsl sets to False, it should be detected",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 5,
+            "queryable_id": 18
+        },
+        "Codebuild.C19": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO5",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify the insecureSsl configuration is set to False on all primary and secondary sources",
+            "testing": "Create a source with the insecureSsl configuration set to true, it should be detected",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 5,
+            "queryable_id": 19
+        },
+        "Codebuild.C20": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO6",
+            "retired": "false",
+            "assurance": "Codebuild.C21",
+            "dependency": "",
+            "description": "Enforce encryption is not bypassed for artifacts/reports stored on S3 (either primary or secondary) by the encryptionDisabled configuration",
+            "testing": "Request the process and records of enforcing the encryptionDisabled configuration to False",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 6,
+            "queryable_id": 20
+        },
+        "Codebuild.C21": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO6",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify encryptionDisabled for all artifacts/reports stored in S3 are set to False (either primary or secondary)",
+            "testing": "Create a source with the encryptionDisabled configuration for an artifact, it should be detected",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 6,
+            "queryable_id": 21
+        },
+        "Codebuild.C22": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO7",
+            "retired": "false",
+            "assurance": "Codebuild.C23",
+            "dependency": "",
+            "description": "Use a dedicated IAM service role for each CodeBuild project, with permissions limited to perform the build only, and limiting VPC permission to create network interfaces only in authorized VPCs.",
+            "testing": "Request the processes and records of enforcing the use of dedicated IAM service role in CodeBuild project, and limiting permissions",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 7,
+            "queryable_id": 22
+        },
+        "Codebuild.C23": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO7",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify projects are using dedicated IAM service roles on each CodeBuild project",
+            "testing": "Create 2 CodeBuild projects with the same IAM service role, it should be detected",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 7,
+            "queryable_id": 23
+        },
+        "Codebuild.C24": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO6",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized KMS keys by CodeBuild project to encrypt cache, artifacts and/or logs. CodeBuild uses the same KMS KMS key for all.",
+            "testing": "Request the list of all KMS keys by CodeBuild project for encryption of cache, artifact and/or logs",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 2.0,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 6,
+            "queryable_id": 24
+        },
+        "Codebuild.C73": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO6",
+            "retired": "false",
+            "assurance": "Codebuild.C27,Codebuild.C31",
+            "dependency": "",
+            "description": "Ensure only authorized KMS keys by CodeBuild project to encrypt cache, artifact and/or logs; and that encryptionDisabled for all logs stored in S3 are set to False",
+            "testing": "Request the mechanism ensuring only authorized KMS keys by CodeBuild project to encrypt cache, artifact and/or logs, and that encryptionDisabled for all logs stored in S3 are set to False; and the evidence of its execution",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 6,
+            "queryable_id": 73
+        },
+        "Codebuild.C25": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO6",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C24",
+            "description": "Monitor that CodeBuild project configuration encrypts with authorized KMS key using the CloudTrail events (CreateProject, UpdateProject) with the CloudTrail log (responseElements.project.encryptionKey) has a valid value",
+            "testing": "Create/update a CodeBuild project with no encryption or with an unauthorized KMS key, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 6,
+            "queryable_id": 25
+        },
+        "Codebuild.C26": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO6",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C24",
+            "description": "Monitor that CodeBuild project build encrypts with authorized KMS key using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.build.encryptionKey) has a valid value",
+            "testing": "Run a build with no encryption or with an unauthorized KMS key, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 6,
+            "queryable_id": 26
+        },
+        "Codebuild.C27": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO6",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify CodeBuild projects cache, artifact and/or logs are encrypted with an unauthorized KMS key.",
+            "testing": "Create/update a CodeBuild project with no encryption or with an unauthorized KMS key, it should be detected",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 6,
+            "queryable_id": 27
+        },
+        "Codebuild.C28": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO8",
+            "retired": "false",
+            "assurance": "Codebuild.C30",
+            "dependency": "",
+            "description": "Enforce logging on CodeBuild projects (i.e. with CW logs and/or encrypted S3 logs)",
+            "testing": "Request the process and records of enforcing logging on CodeBuild (and encrypted for S3)",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 8,
+            "queryable_id": 28
+        },
+        "Codebuild.C29": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO8",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of CW log groups or S3 buckets allowed for logs of CodeBuild projects. For S3 buckets, maintain the type of bucket ownership of the logs.",
+            "testing": "Request the list of all CW log groups or S3 buckets allowed for logs of CodeBuild projects",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 8,
+            "queryable_id": 29
+        },
+        "Codebuild.C30": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO8",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify the log configuration is enabled on CW or S3, in authorized targets, and for S3, the bucket ownership is correct.",
+            "testing": "1) Disable logging, and 2) modify the bucket ownership, it should be detected",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 8,
+            "queryable_id": 30
+        },
+        "Codebuild.C31": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO8",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify encryptionDisabled for all logs stored in S3 are set to False",
+            "testing": "Create a project with the encryptionDisabled configuration for logs, it should be detected",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 8,
+            "queryable_id": 31
+        },
+        "Codebuild.C32": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO9",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Limit the access to the IAM actions required to perform the attack using AWS IAM and/or SCP, following the IAM Operating Model and using the IAM ThreatModel",
+            "testing": "Request the list of authorized IAM principal that have the permissions required to launch the attack, its review process and its review records",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "Medium",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T4",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T6",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T8",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T10",
+                    "impact": "Very High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1",
+                "Codebuild.FC3",
+                "Codebuild.FC4",
+                "Codebuild.FC5",
+                "Codebuild.FC7"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 9,
+            "queryable_id": 32
+        },
+        "Codebuild.C33": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO9",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Limit the ability to execute the IAM actions required to perform the attack using VPC endpoint policy, following the VPC ThreatModel",
+            "testing": "Request the list of authorized IAM principal that have the permissions required to launch the attack within or outside allowed VPCs, its review process and its review records",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T2",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T4",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T6",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T8",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Low"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1",
+                "Codebuild.FC3",
+                "Codebuild.FC4",
+                "Codebuild.FC5"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 9,
+            "queryable_id": 33
+        },
+        "Codebuild.C34": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO10",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized EFS filesystem(s) to be mounted by CodeBuild project",
+            "testing": "Request the list of authorized EFS filesystem(s) to be mounted by CodeBuild project",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 10,
+            "queryable_id": 34
+        },
+        "Codebuild.C74": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO10",
+            "retired": "false",
+            "assurance": "Codebuild.C37",
+            "dependency": "",
+            "description": "Ensure only authorized EFS filesystem(s) are mounted for each CodeBuild project",
+            "testing": "Request the mechanism ensuring only authorized EFS filesystem(s) are mounted for each CodeBuild project, and the evidence of its execution",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 10,
+            "queryable_id": 74
+        },
+        "Codebuild.C35": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO10",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor that CodeBuild project configuration only mounts EFS filesystem(s) using the CloudTrail events (CreateProject, UpdateProject) with the CloudTrail log (responseElements.project.fileSystemLocations) has a valid value",
+            "testing": "Create/update a CodeBuild project to mount an unauthorized EFS filesystem, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 10,
+            "queryable_id": 35
+        },
+        "Codebuild.C36": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO10",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Monitor that CodeBuild project build only mounts EFS filesystem(s) using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.build.fileSystemLocations) has a valid value",
+            "testing": "Run a build mounting an unauthorized EFS filesystem, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 10,
+            "queryable_id": 36
+        },
+        "Codebuild.C37": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO10",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized EFS filesystem(s) are mounted on given CodeBuild project",
+            "testing": "Create/update a CodeBuild project to mount an unauthorized EFS filesystem, it should be detected",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 10,
+            "queryable_id": 37
+        },
+        "Codebuild.C38": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO4",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Enforce code reviews on the buildspec (e.g. using source control, static analysis, peer review) to validate logic, the presence of privilege commands (e.g. codebuild-breakpoint), etc.",
+            "testing": "Request the process and records of enforcing code reviews on the buildspec",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very High",
+                    "priority": 4.0,
+                    "max_dependency": null,
+                    "priority_overall": 4.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "High",
+            "weighted_priority_score": 3,
+            "queryable_objective_id": 4,
+            "queryable_id": 38
+        },
+        "Codebuild.C39": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO4",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Enforce the usage of an unique way to modify the buildspec per project to limit attack surface (e.g. via a pipeline)",
+            "testing": "Request the process and records of enforcing an unique way of modifying the buildspec per project",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very High",
+                    "priority": 4.0,
+                    "max_dependency": null,
+                    "priority_overall": 4.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "High",
+            "weighted_priority_score": 3,
+            "queryable_objective_id": 4,
+            "queryable_id": 39
+        },
+        "Codebuild.C40": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO11",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized AWS accounts or IAM principals allowed to view a shared CodeBuild project",
+            "testing": "Request the list of AWS accounts or IAM principals, authorized for sharing by CodeBuild project",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T6",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 4.0,
+                    "priority_overall": 4.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC5"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 11,
+            "queryable_id": 40
+        },
+        "Codebuild.C41": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO11",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C40",
+            "description": "Enforce limited share using the RAM ThreatModel",
+            "testing": "Request the RAM ThreatModel and the evidence of its application on CodeBuild projects",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T6",
+                    "impact": "Very High",
+                    "priority": 4.0,
+                    "max_dependency": null,
+                    "priority_overall": 4.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC5"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 11,
+            "queryable_id": 41
+        },
+        "Codebuild.C42": {
+            "coso": "Directive",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO12",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Review and scan regularly for sensitive data in CodeBuild environment variables",
+            "testing": "Request the mechanism ensuring CodeBuild environment variables are regularly review and scan for sensitive data, and the evidence of its execution",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 12,
+            "queryable_id": 42
+        },
+        "Codebuild.C43": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO12",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized sensitive environment variables used by project (stored in Secret Manager secrets and/or SSM Parameter Store)",
+            "testing": "Request the list of authorized sensitive environment variables used by project, review process and records",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 3.0,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 12,
+            "queryable_id": 43
+        },
+        "Codebuild.C75": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO12",
+            "retired": "false",
+            "assurance": "Codebuild.C46",
+            "dependency": "",
+            "description": "Ensure only authorized sensitive environment variables are used for each CodeBuild project",
+            "testing": "Request the mechanism ensuring only authorized sensitive environment variables are used for each CodeBuild project, and the evidence of its execution",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "Medium",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 12,
+            "queryable_id": 75
+        },
+        "Codebuild.C44": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO12",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C43",
+            "description": "Monitor that CodeBuild project configuration only uses authorized sensitive environment variables using the CloudTrail events (CreateProject, UpdateProject) with the CloudTrail log (responseElements.environment.environmentVariables) has a valid value",
+            "testing": "Create/update a CodeBuild project to use an unauthorized sensitive environment variables, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 12,
+            "queryable_id": 44
+        },
+        "Codebuild.C45": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO12",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C43",
+            "description": "Monitor that CodeBuild project build only uses authorized sensitive environment variables using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.build.environment.environmentVariables) has a valid value",
+            "testing": "Run a build to use an unauthorized sensitive environment variable, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 12,
+            "queryable_id": 45
+        },
+        "Codebuild.C46": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO12",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized sensitive environment variables are used in project",
+            "testing": "Create/update a CodeBuild project to use an unauthorized sensitive environment variables, it should be detected",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 12,
+            "queryable_id": 46
+        },
+        "Codebuild.C47": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO12",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C43",
+            "description": "Enforce limited access using the Secret Manager and/or SSM Parameter Store ThreatModels",
+            "testing": "Request the Secret Manager / SSM Parameter Store ThreatModels and the evidence of its application on CodeBuild projects",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T3",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 12,
+            "queryable_id": 47
+        },
+        "Codebuild.C48": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO13",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized images to be used for each project, including privilege mode, and SSM agent installed.",
+            "testing": "Request the list of authorized images to be used for projects and its review process and records",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 3.0,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 3.0,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 13,
+            "queryable_id": 48
+        },
+        "Codebuild.C76": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO13",
+            "retired": "false",
+            "assurance": "Codebuild.C52",
+            "dependency": "",
+            "description": "Ensure only authorized images to be used for each CodeBuild project, including privilege mode, and SSM agent installed",
+            "testing": "Request the mechanism ensuring onlyauthorized images to be used for each CodeBuild project, including privilege mode, and SSM agent installed; and the evidence of its execution",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                },
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 13,
+            "queryable_id": 76
+        },
+        "Codebuild.C49": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO13",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C48",
+            "description": "Ensure those images are free from malicious software and changes (by using the ECR ThreatModel if using ECR)",
+            "testing": "Request the process and records of enforcing images free from malicious software and changes",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 13,
+            "queryable_id": 49
+        },
+        "Codebuild.C50": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO13",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C48",
+            "description": "Monitor that CodeBuild project configuration only uses authorized images with correct privilege using the CloudTrail events (CreateProject, UpdateProject) with the CloudTrail log (responseElements.environment.image, responseElements.environment.privilegedMode) has a valid value",
+            "testing": "Create/update a CodeBuild project to use an unauthorized image or incorrect privilege mode, it should be detected",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 13,
+            "queryable_id": 50
+        },
+        "Codebuild.C51": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO13",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C48",
+            "description": "Monitor that CodeBuild project build only uses authorized images with correct privilege using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.build.environment.image, responseElements.environment.privilegedMode) has a valid value",
+            "testing": "Run a build to use an unauthorized image or incorrect privilege mode, it should be detected",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 13,
+            "queryable_id": 51
+        },
+        "Codebuild.C52": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO13",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized images are used in each project",
+            "testing": "Create/update a CodeBuild project to use an unauthorized image, it should be detected",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 13,
+            "queryable_id": 52
+        },
+        "Codebuild.C53": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO14",
+            "retired": "false",
+            "assurance": "Codebuild.C56",
+            "dependency": "",
+            "description": "Enforce the usage of the IAM service role, if ECR in the same AWS account is used.",
+            "testing": "Request the process and records of enforcing the usage of the IAM service role for accessing ECR in the same AWS account",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": 0.0,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 14,
+            "queryable_id": 53
+        },
+        "Codebuild.C54": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO14",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C53",
+            "description": "Monitor that CodeBuild project configuration only uses the Service role when connecting to ECR in the same AWS account (CreateProject, UpdateProject) with the CloudTrail log (responseElements.environment.imagePullCredentialsType) has the SERVICE_ROLE value",
+            "testing": "Create/update a CodeBuild project to use CodeBuild credentials, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 14,
+            "queryable_id": 54
+        },
+        "Codebuild.C55": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO14",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C53",
+            "description": "Monitor that CodeBuild project build uses the Service role when connecting to ECR in the same AWS account using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.environment.imagePullCredentialsType) has the SERVICE_ROLE value",
+            "testing": "Run a build to use CodeBuild credentials, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T5",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": null,
+                    "priority_overall": 0.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 14,
+            "queryable_id": 55
+        },
+        "Codebuild.C56": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO14",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify if ECR in the same AWS account is used, the project used the IAM service role.",
+            "testing": "Create an ECR access in the same AWS account using CodeBuild credentials, it should be detected.",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 14,
+            "queryable_id": 56
+        },
+        "Codebuild.C80": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO15",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized proxies by build project (including HTTP and HTTPS protocols)",
+            "testing": "Request the list of authorized proxies by build project, its review process and its review records",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T7",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 3.0,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 15,
+            "queryable_id": 80
+        },
+        "Codebuild.C57": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO15",
+            "retired": "false",
+            "assurance": "Codebuild.C60",
+            "dependency": "Codebuild.C80",
+            "description": "Ensure only authorized HTTP_PROXY and HTTPS_PROXY variables are configured on each project",
+            "testing": "Request 1) the mechanism ensuring only authorized HTTP_PROXY and HTTPS_PROXY variables are configured on each build project, 2) its records of execution for all new build projects, and 3) plan to move any older build projects",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T7",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 15,
+            "queryable_id": 57
+        },
+        "Codebuild.C58": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO15",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C80",
+            "description": "Monitor that CodeBuild project configuration include only authorized HTTP_PROXY and HTTPS_PROXY variables using the CloudTrail events (CreateProject, UpdateProject) with the CloudTrail log (responseElements.environment.environmentVariables)",
+            "testing": "Create/update a CodeBuild project to 1) include an unauthorized HTTP_PROXY and HTTPS_PROXY variables, or 2) not including an authorized HTTP_PROXY and HTTPS_PROXY variables, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T7",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 15,
+            "queryable_id": 58
+        },
+        "Codebuild.C59": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO15",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C80",
+            "description": "Monitor that CodeBuild project build does not include unauthorized HTTP_PROXY and HTTPS_PROXY variables using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.build.environment.environmentVariables)",
+            "testing": "Run a build including unauthorized HTTP_PROXY and HTTPS_PROXY variables, it should be detected",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T7",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 15,
+            "queryable_id": 59
+        },
+        "Codebuild.C60": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO15",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized HTTP_PROXY and HTTPS_PROXY variables are configured on each project",
+            "testing": "Create/update a CodeBuild project to 1) include an unauthorized HTTP_PROXY and HTTPS_PROXY variables, or 2) remove an authorized HTTP_PROXY and HTTPS_PROXY variables, it should be detected",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 15,
+            "queryable_id": 60
+        },
+        "Codebuild.C61": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO16",
+            "retired": "false",
+            "assurance": "Codebuild.C64",
+            "dependency": "",
+            "description": "Implement a traceable process to authorize access to the build container only when required",
+            "testing": "Request the process to limit access to the build container on the need to have basis only.",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": 2.0,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 16,
+            "queryable_id": 61
+        },
+        "Codebuild.C62": {
+            "coso": "Detective",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO16",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C61",
+            "description": "Monitor that CodeBuild builds are launched without access to the container using the CloudTrail events (StartBuild) with the CloudTrail log (responseElements.build.debugSession.sessionEnabled = true) has a valid value",
+            "testing": "Start a build with the debug session, it should be detected",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 16,
+            "queryable_id": 62
+        },
+        "Codebuild.C63": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO16",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C61",
+            "description": "Limit access to Session Manager, using SSM ThreatModel",
+            "testing": "Request the SSM ThreatModel and the evidence of its application on CodeBuild projects",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T9",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 16,
+            "queryable_id": 63
+        },
+        "Codebuild.C64": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO16",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized CodeBuild IAM service roles have the IAM permissions to allow a SSM session",
+            "testing": "Modify an unauthorized CodeBuild IAM service role to have the IAM permission to allow SSM sessions, it should be detected.",
+            "effort": "High",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 16,
+            "queryable_id": 64
+        },
+        "Codebuild.C65": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO17",
+            "retired": "false",
+            "assurance": "Codebuild.C66,Codebuild.C67",
+            "dependency": "",
+            "description": "Use a dedicated IAM service role for build batch for each project with build batch, different from IAM service roles for build, with permissions limited to perform start/retry/stop orchestrated builds only.",
+            "testing": "Request the processes and records of enforcing the use of dedicated IAM service role for build batch for each project with build batch and limiting permissions",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T10",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC7"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 17,
+            "queryable_id": 65
+        },
+        "Codebuild.C66": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO17",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify projects are using dedicated IAM service role for build batch for each project with build batch",
+            "testing": "Create 2 CodeBuild projects with build batch with the same IAM service role for build batch for each project, it should be detected",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC7"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 17,
+            "queryable_id": 66
+        },
+        "Codebuild.C67": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO17",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify projects are using different roles between the IAM service role for build and the IAM service role of build batch",
+            "testing": "Create a CodeBuild projects with the same role for IAM service role for build and the IAM service role of build batch, it should be detected",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC7"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 17,
+            "queryable_id": 67
+        },
+        "Codebuild.C68": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO18",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of authorized CodeBuild report authorized to export in S3, their S3 destination (and owner) and associated KMS key",
+            "testing": "Request the list of authorized CodeBuild report authorized to export in S3, their S3 destination (and owner) and associated KMS key, its review process and its review records",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 2.0,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 18,
+            "queryable_id": 68
+        },
+        "Codebuild.C69": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO18",
+            "retired": "false",
+            "assurance": "Codebuild.C70",
+            "dependency": "Codebuild.C68",
+            "description": "Ensure only authorized export configuration are created",
+            "testing": "Request the mechanism ensuring only authorized export configuration are created, and the evidence of its execution",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 18,
+            "queryable_id": 69
+        },
+        "Codebuild.C70": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO18",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized authorized export configuration are created",
+            "testing": "Create an unauthorized export configuration, it should be detected.",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 18,
+            "queryable_id": 70
+        },
+        "Codebuild.C71": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO18",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C68",
+            "description": "Secure any S3 buckets used in report configuration using S3 ThreatModel",
+            "testing": "Request the S3 ThreatModel and the evidence of its application for all S3 buckets used in report configuration",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Low",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 18,
+            "queryable_id": 71
+        },
+        "Codebuild.C77": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO19",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "For artifacts (primary or secondary) stored in S3, maintain the list of authorized S3 buckets and their type of object ownership",
+            "testing": "Request the list of authorized S3 buckets and their type of object ownership, its review process and its review records",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 3.0,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 19,
+            "queryable_id": 77
+        },
+        "Codebuild.C78": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO19",
+            "retired": "false",
+            "assurance": "Codebuild.C79",
+            "dependency": "Codebuild.C77",
+            "description": "Ensure only authorized S3 buckets and their type of object ownership are configured for artifact(s) stored in S3 by projects and builds",
+            "testing": "Request 1) the mechanism ensuring only authorized S3 buckets and their type of object ownership are configured for artifact(s) stored in S3 by projects and builds, 2) its records of execution for all new projects and builds, and 3) plan to move any older projects and builds",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T1",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 19,
+            "queryable_id": 78
+        },
+        "Codebuild.C79": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO19",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized S3 buckets and their type of object ownership are configured for artifact(s) stored in S3 by projects and builds",
+            "testing": "Create a project and a build sotring artifact(s) on S3 with 1) an unauthorized S3 buckets, and 2) an unauthorized type of object ownership, it should be detected.",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC1"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 19,
+            "queryable_id": 79
+        },
+        "Codebuild.C81": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO20",
+            "retired": "false",
+            "assurance": "Codebuild.C82",
+            "dependency": "",
+            "description": "Ensure only authorized projects are configured to be publicly visible, ideally in their own AWS accounts",
+            "testing": "Request 1) the mechanism ensuring only authorized projects are configured to be publicly visible, 2) its records of execution for all new projects, and 3) plan to move any older projects",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T11",
+                    "impact": "High",
+                    "priority": 3.0,
+                    "max_dependency": null,
+                    "priority_overall": 3.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC8"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 20,
+            "queryable_id": 81
+        },
+        "Codebuild.C82": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO20",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized projects are configured to be publicly visible",
+            "testing": "Create/modify an unauthorized project to be publicly visible, it should be detected.",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC8"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 20,
+            "queryable_id": 82
+        },
+        "Codebuild.C83": {
+            "coso": "Directive",
+            "nist_csf": "Identify",
+            "objective": "Codebuild.CO20",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Maintain a list of IAM roles attached to publicly visible projects, ideally dedicated (e.g. using change management process on infrastructure-as-code)",
+            "testing": "Request the list of all IAM roles used by publicly-visible project, its review process and its review records",
+            "effort": "Low",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T11",
+                    "impact": "Very Low",
+                    "priority": 0.0,
+                    "max_dependency": 2.0,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC8"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 20,
+            "queryable_id": 83
+        },
+        "Codebuild.C84": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO20",
+            "retired": "false",
+            "assurance": "Codebuild.C87",
+            "dependency": "Codebuild.C83",
+            "description": "Ensure only an authorized IAM role is attached on each publicly-visible project",
+            "testing": "Request the mechanism ensuring only an authorized IAM role is attached on each publicly-visible project, and the evidence of its execution for all new publicly-visible project",
+            "effort": "Medium",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T11",
+                    "impact": "Medium",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC8"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 20,
+            "queryable_id": 84
+        },
+        "Codebuild.C85": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO20",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C83",
+            "description": "Limit the AWS services access to each IAM role attached to publicly-visible project, using the respective ThreatModels",
+            "testing": "Request the respective ThreatModels and the evidence of its application on the access of each publicly-visible project IAM role.",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T11",
+                    "impact": "Medium",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC8"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 20,
+            "queryable_id": 85
+        },
+        "Codebuild.C86": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO20",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "Codebuild.C83",
+            "description": "Limit access to authorized IAM roles attached to publicly-visible project, using the IAM ThreatModel (including using \"codebuild.amazonaws.com\" in the trust policy only)",
+            "testing": "Request the IAM ThreatModel and the evidence of its application to the IAM roles attached to publicly-visible project",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T11",
+                    "impact": "Medium",
+                    "priority": 1.0,
+                    "max_dependency": null,
+                    "priority_overall": 1.0,
+                    "cvss": "Medium"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC8"
+            ],
+            "weighted_priority": "Low",
+            "weighted_priority_score": 1,
+            "queryable_objective_id": 20,
+            "queryable_id": 86
+        },
+        "Codebuild.C87": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO20",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized IAM roles are attached to publicly-visible project",
+            "testing": "Create a publicly-visible project with an unauthorized IAM role, it should be detected",
+            "effort": "Low",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC8"
+            ],
+            "weighted_priority": "Medium",
+            "weighted_priority_score": 2,
+            "queryable_objective_id": 20,
+            "queryable_id": 87
+        },
+        "Codebuild.C88": {
+            "coso": "Directive",
+            "nist_csf": "Protect",
+            "objective": "Codebuild.CO21",
+            "retired": "false",
+            "assurance": "Codebuild.C89",
+            "dependency": "",
+            "description": "Ensure only authorized build reports are shared with the source provider for each project (i.e. either all or aggregated)",
+            "testing": "Request 1) the mechanism ensuring only authorized build reports are shared with the source provider for each project, 2) its records of execution for all new projects, and 3) plan to move any older projects",
+            "effort": "High",
+            "mitigate": [
+                {
+                    "threat": "Codebuild.T4",
+                    "impact": "High",
+                    "priority": 2.0,
+                    "max_dependency": null,
+                    "priority_overall": 2.0,
+                    "cvss": "Low"
+                }
+            ],
+            "feature_class": [
+                "Codebuild.FC4"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 21,
+            "queryable_id": 88
+        },
+        "Codebuild.C89": {
+            "coso": "Assurance",
+            "nist_csf": "Detect",
+            "objective": "Codebuild.CO21",
+            "retired": "false",
+            "assurance": "",
+            "dependency": "",
+            "description": "Verify only authorized build reports are shared with the source provider for each project",
+            "testing": "Deploy an unauthorized build reports sharing configuration, it should be detected.",
+            "effort": "Medium",
+            "mitigate": [],
+            "feature_class": [
+                "Codebuild.FC4"
+            ],
+            "weighted_priority": "Very Low",
+            "weighted_priority_score": 0,
+            "queryable_objective_id": 21,
+            "queryable_id": 89
+        }
+    },
+    "actions": {
+        "Codebuild.A1": {
+            "action_description": "Deletes one or more builds.",
+            "api": "BatchDeleteBuilds",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:BatchDeleteBuilds",
+            "event_name": "BatchDeleteBuilds",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 1
+        },
+        "Codebuild.A2": {
+            "action_description": "Gets information about one or more builds.",
+            "api": "BatchGetBuilds",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:BatchGetBuilds",
+            "event_name": "BatchGetBuilds",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 2
+        },
+        "Codebuild.A3": {
+            "action_description": "Gets information about one or more build projects.",
+            "api": "BatchGetProjects",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:BatchGetProjects",
+            "event_name": "BatchGetProjects",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 3
+        },
+        "Codebuild.A4": {
+            "action_description": "Returns an array of ReportGroup objects that are specified by the input reportGroupArns parameter.",
+            "api": "BatchGetReportGroups",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:BatchGetReportGroups",
+            "event_name": "BatchGetReportGroups",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 4
+        },
+        "Codebuild.A5": {
+            "action_description": "Returns an array of the report objects specified by the input reportArns parameter.",
+            "api": "BatchGetReports",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:BatchGetReports",
+            "event_name": "BatchGetReport",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 5
+        },
+        "Codebuild.A6": {
+            "action_description": "Adds or updates information about a test report.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:BatchPutTestCases",
+            "event_name": "BatchPutTestCases",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 6
+        },
+        "Codebuild.A7": {
+            "action_description": "Creates a build project.",
+            "api": "CreateProject",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:CreateProject",
+            "event_name": "CreateProject",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 7
+        },
+        "Codebuild.A8": {
+            "action_description": "Creates a report. A report is created when tests specified in the buildspec file for a report group run during the build of a project.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:CreateReport",
+            "event_name": "CreateReport",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 8
+        },
+        "Codebuild.A9": {
+            "action_description": "Creates a report group.",
+            "api": "CreateReportGroup",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:CreateReportGroup",
+            "event_name": "CreateReportGroup",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 9
+        },
+        "Codebuild.A10": {
+            "action_description": "For an existing AWS CodeBuild build project that has its source code stored in a GitHub or Bitbucket repository, enables AWS CodeBuild to start rebuilding the source code every time a code change is pushed to the repository.",
+            "api": "CreateWebhook",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC2",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:CreateWebhook",
+            "event_name": "CreateWebhook",
+            "stage": "ga",
+            "id": "Codebuild.FC2",
+            "order": 5,
+            "name": "Webhooks",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "For a CodeBuild build project that has its source code stored in a GitHub or Bitbucket repository, webhooks can be used to rebuild the source code every time a code change is pushed to the repository.",
+            "long_description": "",
+            "action_id_int": 10
+        },
+        "Codebuild.A11": {
+            "action_description": "Deletes an OAuth token from a connected third-party OAuth provider. Only used in the AWS CodeBuild console.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC3",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteOAuthToken",
+            "event_name": "DeleteOAuthToken",
+            "stage": "ga",
+            "id": "Codebuild.FC3",
+            "order": 3,
+            "name": "Cloud repo authentication (OAuth)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can connect to source code providers, via OAuth.",
+            "long_description": "",
+            "action_id_int": 11
+        },
+        "Codebuild.A12": {
+            "action_description": "Deletes a build project.",
+            "api": "DeleteProject",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteProject",
+            "event_name": "DeleteProject",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 12
+        },
+        "Codebuild.A13": {
+            "action_description": "Deletes a report.",
+            "api": "DeleteReport",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteReport",
+            "event_name": "DeleteReport",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 13
+        },
+        "Codebuild.A14": {
+            "action_description": "Deletes a report group.",
+            "api": "DeleteReportGroup",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteReportGroup",
+            "event_name": "DeleteReportGroup",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 14
+        },
+        "Codebuild.A15": {
+            "action_description": "Deletes a resource policy for the associated project or report group.",
+            "api": "DeleteResourcePolicy",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC5",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteResourcePolicy",
+            "event_name": "DeleteResourcePolicy",
+            "stage": "ga",
+            "id": "Codebuild.FC5",
+            "order": 8,
+            "name": "Share projects or report groups cross-AWS-account via RAM (view only)",
+            "class_relationship": [
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC1"
+                },
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC6"
+                }
+            ],
+            "description": "Sharing allows other AWS accounts or users to view AWS CodeBuild projects, report groups, its unexpired reports, and the test results of its reports. In this model, the AWS account that owns the project/report group (owner) shares with other AWS accounts (consumers). A consumer cannot edit/run a project or edit a report group.",
+            "long_description": "",
+            "action_id_int": 15
+        },
+        "Codebuild.A16": {
+            "action_description": "Deletes a set of GitHub, GitHub Enterprise, or Bitbucket source credentials.",
+            "api": "DeleteSourceCredentials",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC4",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteSourceCredentials",
+            "event_name": "DeleteSourceCredentials",
+            "stage": "ga",
+            "id": "Codebuild.FC4",
+            "order": 4,
+            "name": "Cloud repo authentication (Personal Access Token)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can connect to source code providers, via Personal Access Token.",
+            "long_description": "",
+            "action_id_int": 16
+        },
+        "Codebuild.A17": {
+            "action_description": "For an existing AWS CodeBuild build project that has its source code stored in a GitHub or Bitbucket repository, stops AWS CodeBuild from rebuilding the source code every time a code change is pushed to the repository.",
+            "api": "DeleteWebhook",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC2",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteWebhook",
+            "event_name": "DeleteWebhook",
+            "stage": "ga",
+            "id": "Codebuild.FC2",
+            "order": 5,
+            "name": "Webhooks",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "For a CodeBuild build project that has its source code stored in a GitHub or Bitbucket repository, webhooks can be used to rebuild the source code every time a code change is pushed to the repository.",
+            "long_description": "",
+            "action_id_int": 17
+        },
+        "Codebuild.A18": {
+            "action_description": "Returns an array of TestCase objects.",
+            "api": "DescribeTestCases",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DescribeTestCases",
+            "event_name": "DescribeTestCases",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 18
+        },
+        "Codebuild.A19": {
+            "action_description": "Returns a resource policy for the specified project or report group.",
+            "api": "GetResourcePolicy",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC5",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:GetResourcePolicy",
+            "event_name": "GetResourcePolicy",
+            "stage": "ga",
+            "id": "Codebuild.FC5",
+            "order": 8,
+            "name": "Share projects or report groups cross-AWS-account via RAM (view only)",
+            "class_relationship": [
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC1"
+                },
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC6"
+                }
+            ],
+            "description": "Sharing allows other AWS accounts or users to view AWS CodeBuild projects, report groups, its unexpired reports, and the test results of its reports. In this model, the AWS account that owns the project/report group (owner) shares with other AWS accounts (consumers). A consumer cannot edit/run a project or edit a report group.",
+            "long_description": "",
+            "action_id_int": 19
+        },
+        "Codebuild.A20": {
+            "action_description": "Imports the source repository credentials for an AWS CodeBuild project that has its source code stored in a GitHub, GitHub Enterprise, or Bitbucket repository.",
+            "api": "ImportSourceCredentials",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC4",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:ImportSourceCredentials",
+            "event_name": "ImportSourceCredentials",
+            "stage": "ga",
+            "id": "Codebuild.FC4",
+            "order": 4,
+            "name": "Cloud repo authentication (Personal Access Token)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can connect to source code providers, via Personal Access Token.",
+            "long_description": "",
+            "action_id_int": 20
+        },
+        "Codebuild.A21": {
+            "action_description": "Resets the cache for a project.",
+            "api": "InvalidateProjectCache",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:InvalidateProjectCache",
+            "event_name": "InvalidateProjectCache",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 21
+        },
+        "Codebuild.A22": {
+            "action_description": "Gets a list of build IDs, with each build ID representing a single build.",
+            "api": "ListBuilds",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListBuilds",
+            "event_name": "ListBuilds",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 22
+        },
+        "Codebuild.A23": {
+            "action_description": "Gets a list of build IDs for the specified build project, with each build ID representing a single build.",
+            "api": "ListBuildsForProject",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListBuildsForProject",
+            "event_name": "ListBuildsForProject",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 23
+        },
+        "Codebuild.A24": {
+            "action_description": "Lists connected third-party OAuth providers. Only used in the AWS CodeBuild console.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC3",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListConnectedOAuthAccounts",
+            "event_name": "ListConnectedOAuthAccounts",
+            "stage": "ga",
+            "id": "Codebuild.FC3",
+            "order": 3,
+            "name": "Cloud repo authentication (OAuth)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can connect to source code providers, via OAuth.",
+            "long_description": "",
+            "action_id_int": 24
+        },
+        "Codebuild.A25": {
+            "action_description": "Gets information about Docker images that are managed by AWS CodeBuild.",
+            "api": "ListCuratedEnvironmentImages",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListCuratedEnvironmentImages",
+            "event_name": "ListCuratedEnvironmentImages",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 25
+        },
+        "Codebuild.A26": {
+            "action_description": "Gets a list of build project names, with each build project name representing a single build project.",
+            "api": "ListProjects",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListProjects",
+            "event_name": "ListProjects",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 26
+        },
+        "Codebuild.A27": {
+            "action_description": "Returns a list of report group ARNs. Each report group ARN represents one report group.",
+            "api": "ListReportGroups",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListReportGroups",
+            "event_name": "ListReportGroups",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 27
+        },
+        "Codebuild.A28": {
+            "action_description": "Returns a list of report ARNs. Each report ARN representing one report.",
+            "api": "ListReports",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListReports",
+            "event_name": "ListReports",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 28
+        },
+        "Codebuild.A29": {
+            "action_description": "Returns a list of report ARNs that belong to the specified report group. Each report ARN represents one report.",
+            "api": "ListReportsForReportGroup",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListReportsForReportGroup",
+            "event_name": "ListReportsForReportGroup",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 29
+        },
+        "Codebuild.A30": {
+            "action_description": "Lists source code repositories from a connected third-party OAuth provider. Only used in the AWS CodeBuild console.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC3",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListRepositories",
+            "event_name": "ListRepositories",
+            "stage": "ga",
+            "id": "Codebuild.FC3",
+            "order": 3,
+            "name": "Cloud repo authentication (OAuth)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can connect to source code providers, via OAuth.",
+            "long_description": "",
+            "action_id_int": 30
+        },
+        "Codebuild.A31": {
+            "action_description": "Returns a list of project ARNs that have been shared with the requester. Each project ARN represents one project.",
+            "api": "ListSharedProjects",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC5",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListSharedProjects",
+            "event_name": "ListSharedProjects",
+            "stage": "ga",
+            "id": "Codebuild.FC5",
+            "order": 8,
+            "name": "Share projects or report groups cross-AWS-account via RAM (view only)",
+            "class_relationship": [
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC1"
+                },
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC6"
+                }
+            ],
+            "description": "Sharing allows other AWS accounts or users to view AWS CodeBuild projects, report groups, its unexpired reports, and the test results of its reports. In this model, the AWS account that owns the project/report group (owner) shares with other AWS accounts (consumers). A consumer cannot edit/run a project or edit a report group.",
+            "long_description": "",
+            "action_id_int": 31
+        },
+        "Codebuild.A32": {
+            "action_description": "Returns a list of report group ARNs that have been shared with the requester. Each report group ARN represents one report group.",
+            "api": "ListSharedReportGroups",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC5",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListSharedReportGroups",
+            "event_name": "ListSharedReportGroups",
+            "stage": "ga",
+            "id": "Codebuild.FC5",
+            "order": 8,
+            "name": "Share projects or report groups cross-AWS-account via RAM (view only)",
+            "class_relationship": [
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC1"
+                },
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC6"
+                }
+            ],
+            "description": "Sharing allows other AWS accounts or users to view AWS CodeBuild projects, report groups, its unexpired reports, and the test results of its reports. In this model, the AWS account that owns the project/report group (owner) shares with other AWS accounts (consumers). A consumer cannot edit/run a project or edit a report group.",
+            "long_description": "",
+            "action_id_int": 32
+        },
+        "Codebuild.A33": {
+            "action_description": "Returns a list of SourceCredentialsInfo objects.",
+            "api": "ListSourceCredentials",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC4",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListSourceCredentials",
+            "event_name": "ListSourceCredentials",
+            "stage": "ga",
+            "id": "Codebuild.FC4",
+            "order": 4,
+            "name": "Cloud repo authentication (Personal Access Token)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can connect to source code providers, via Personal Access Token.",
+            "long_description": "",
+            "action_id_int": 33
+        },
+        "Codebuild.A34": {
+            "action_description": "Saves an OAuth token from a connected third-party OAuth provider. Only used in the AWS CodeBuild console.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC3",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:PersistOAuthToken",
+            "event_name": "PersistOAuthToken",
+            "stage": "ga",
+            "id": "Codebuild.FC3",
+            "order": 3,
+            "name": "Cloud repo authentication (OAuth)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can connect to source code providers, via OAuth.",
+            "long_description": "",
+            "action_id_int": 34
+        },
+        "Codebuild.A35": {
+            "action_description": "Creates a resource policy for the associated project or report group.",
+            "api": "PutResourcePolicy",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC5",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:PutResourcePolicy",
+            "event_name": "PutResourcePolicy",
+            "stage": "ga",
+            "id": "Codebuild.FC5",
+            "order": 8,
+            "name": "Share projects or report groups cross-AWS-account via RAM (view only)",
+            "class_relationship": [
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC1"
+                },
+                {
+                    "type": "usage",
+                    "class": "Codebuild.FC6"
+                }
+            ],
+            "description": "Sharing allows other AWS accounts or users to view AWS CodeBuild projects, report groups, its unexpired reports, and the test results of its reports. In this model, the AWS account that owns the project/report group (owner) shares with other AWS accounts (consumers). A consumer cannot edit/run a project or edit a report group.",
+            "long_description": "",
+            "action_id_int": 35
+        },
+        "Codebuild.A36": {
+            "action_description": "Starts running a build.",
+            "api": "StartBuild",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:StartBuild",
+            "event_name": "StartBuild",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 36
+        },
+        "Codebuild.A37": {
+            "action_description": "Attempts to stop running a build.",
+            "api": "StopBuild",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:StopBuild",
+            "event_name": "StopBuild",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 37
+        },
+        "Codebuild.A38": {
+            "action_description": "Changes the settings of an existing build project.",
+            "api": "UpdateProject",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:UpdateProject",
+            "event_name": "UpdateProject",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 38
+        },
+        "Codebuild.A39": {
+            "action_description": "Updates information about a report.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:UpdateReport",
+            "event_name": "UpdateReport",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 39
+        },
+        "Codebuild.A40": {
+            "action_description": "Changes the settings of an existing report group.",
+            "api": "UpdateReportGroup",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:UpdateReportGroup",
+            "event_name": "UpdateReportGroup",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 40
+        },
+        "Codebuild.A41": {
+            "action_description": "Updates the webhook associated with an AWS CodeBuild build project.",
+            "api": "UpdateWebhook",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC2",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:UpdateWebhook",
+            "event_name": "UpdateWebhook",
+            "stage": "ga",
+            "id": "Codebuild.FC2",
+            "order": 5,
+            "name": "Webhooks",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "For a CodeBuild build project that has its source code stored in a GitHub or Bitbucket repository, webhooks can be used to rebuild the source code every time a code change is pushed to the repository.",
+            "long_description": "",
+            "action_id_int": 41
+        },
+        "Codebuild.A42": {
+            "action_description": "Retrieves information about one or more batch builds.",
+            "api": "BatchGetBuildBatches",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC7",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:BatchGetBuildBatches",
+            "event_name": "BatchGetBuildBatches",
+            "stage": "ga",
+            "id": "Codebuild.FC7",
+            "order": 2,
+            "name": "Batch builds",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "With batch builds, customers can configure a single project for multiple build executions and rely on CodeBuild to perform the orchestration (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build.html\">ref</a>).",
+            "long_description": "",
+            "action_id_int": 42
+        },
+        "Codebuild.A43": {
+            "action_description": "Returns an array of reports.",
+            "api": "BatchGetReports",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:BatchGetReports",
+            "event_name": "BatchGetReports",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 43
+        },
+        "Codebuild.A44": {
+            "action_description": "Adds or updates information about a code coverage report.",
+            "api": "-",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:BatchPutCodeCoverages",
+            "event_name": "BatchPutCodeCoverages",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 44
+        },
+        "Codebuild.A45": {
+            "action_description": "Deletes a batch build.",
+            "api": "DeleteBuildBatch",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC7",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DeleteBuildBatch",
+            "event_name": "DeleteBuildBatch",
+            "stage": "ga",
+            "id": "Codebuild.FC7",
+            "order": 2,
+            "name": "Batch builds",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "With batch builds, customers can configure a single project for multiple build executions and rely on CodeBuild to perform the orchestration (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build.html\">ref</a>).",
+            "long_description": "",
+            "action_id_int": 45
+        },
+        "Codebuild.A46": {
+            "action_description": "Retrieves one or more code coverage reports.",
+            "api": "DescribeCodeCoverages",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:DescribeCodeCoverages",
+            "event_name": "DescribeCodeCoverages",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 46
+        },
+        "Codebuild.A47": {
+            "action_description": "Retrieves the identifiers of your build batches in the current region.",
+            "api": "ListBuildBatches",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC7",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListBuildBatches",
+            "event_name": "ListBuildBatches",
+            "stage": "ga",
+            "id": "Codebuild.FC7",
+            "order": 2,
+            "name": "Batch builds",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "With batch builds, customers can configure a single project for multiple build executions and rely on CodeBuild to perform the orchestration (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build.html\">ref</a>).",
+            "long_description": "",
+            "action_id_int": 47
+        },
+        "Codebuild.A48": {
+            "action_description": "Retrieves the identifiers of the build batches for a specific project.",
+            "api": "ListBuildBatchesForProject",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC7",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:ListBuildBatchesForProject",
+            "event_name": "ListBuildBatchesForProject",
+            "stage": "ga",
+            "id": "Codebuild.FC7",
+            "order": 2,
+            "name": "Batch builds",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "With batch builds, customers can configure a single project for multiple build executions and rely on CodeBuild to perform the orchestration (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build.html\">ref</a>).",
+            "long_description": "",
+            "action_id_int": 48
+        },
+        "Codebuild.A49": {
+            "action_description": "Restarts a build.",
+            "api": "RetryBuild",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:RetryBuild",
+            "event_name": "RetryBuild",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 49
+        },
+        "Codebuild.A50": {
+            "action_description": "Restarts a batch build.",
+            "api": "RetryBuildBatch",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC7",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:RetryBuildBatch",
+            "event_name": "RetryBuildBatch",
+            "stage": "ga",
+            "id": "Codebuild.FC7",
+            "order": 2,
+            "name": "Batch builds",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "With batch builds, customers can configure a single project for multiple build executions and rely on CodeBuild to perform the orchestration (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build.html\">ref</a>).",
+            "long_description": "",
+            "action_id_int": 50
+        },
+        "Codebuild.A51": {
+            "action_description": "Starts a batch build for a project.",
+            "api": "StartBuildBatch",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC7",
+            "feature_class_action_type": "core",
+            "iam_permission": "codebuild:StartBuildBatch",
+            "event_name": "StartBuildBatch",
+            "stage": "ga",
+            "id": "Codebuild.FC7",
+            "order": 2,
+            "name": "Batch builds",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "With batch builds, customers can configure a single project for multiple build executions and rely on CodeBuild to perform the orchestration (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build.html\">ref</a>).",
+            "long_description": "",
+            "action_id_int": 51
+        },
+        "Codebuild.A52": {
+            "action_description": "Stops a running batch build.",
+            "api": "StopBuildBatch",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC7",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:StopBuildBatch",
+            "event_name": "StopBuildBatch",
+            "stage": "ga",
+            "id": "Codebuild.FC7",
+            "order": 2,
+            "name": "Batch builds",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "With batch builds, customers can configure a single project for multiple build executions and rely on CodeBuild to perform the orchestration (<a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build.html\">ref</a>).",
+            "long_description": "",
+            "action_id_int": 52
+        },
+        "Codebuild.A53": {
+            "action_description": "Analyzes and accumulates test report values for the specified test reports.",
+            "api": "GetReportGroupTrend",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC6",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:GetReportGroupTrend",
+            "event_name": "GetReportGroupTrend",
+            "stage": "ga",
+            "id": "Codebuild.FC6",
+            "order": 7,
+            "name": "Reports (from CodeBuild builds only)",
+            "class_relationship": [
+                {
+                    "type": "parent",
+                    "class": "Codebuild.FC1"
+                }
+            ],
+            "description": "You can create reports in CodeBuild that contain details about tests or code coverage that are run during builds. You can create tests such as unit tests, configuration tests, and functional tests.",
+            "long_description": "",
+            "action_id_int": 53
+        },
+        "Codebuild.A54": {
+            "action_description": "Changes the public visibility of a project and its builds.",
+            "api": "UpdateProjectVisibility",
+            "endpoint": "codebuild",
+            "feature_class": "Codebuild.FC1",
+            "feature_class_action_type": "other",
+            "iam_permission": "codebuild:UpdateProjectVisibility",
+            "event_name": "UpdateProjectVisibility",
+            "stage": "ga",
+            "id": "Codebuild.FC1",
+            "order": 1,
+            "name": "Build project",
+            "class_relationship": [],
+            "description": "A build project includes information about how to run a build, including where to get the source code, which build environment to use, which build commands to run, and where to store the build output.",
+            "long_description": "",
+            "action_id_int": 54
+        }
+    }
+}

@@ -1,0 +1,41 @@
+.gutter {
+  background-color: #eee;
+
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-vertical {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=");
+  cursor: row-resize;
+}
+
+.gutter.gutter-horizontal {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
+  cursor: col-resize;
+}
+
+.buttons {
+
+  margin-top: 5px;
+  width: 60%;
+  float: right;
+}
+textarea {
+  width: 100%;
+  height: 80%;
+}
+.description,
+.editor {
+  border: 2px solid;
+  border-radius: 7px;
+  border-color: #9ecaed;
+  box-shadow: 0 0 10px #9ecaed;
+  outline: none;
+}
+button.run{
+margin-left: 200px;
+}
+button.test{
+  margin-left: 50px;
+  }
