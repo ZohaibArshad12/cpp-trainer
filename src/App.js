@@ -25,8 +25,8 @@ function App() {
   return (
     <HelmetProvider>
       <Helmet
-        titleTemplate="%s | ControlCatalog"
-        defaultTitle="ControlCatalog"
+        titleTemplate="%s | Cpp-Trainer"
+        defaultTitle="Cpp-Trainer"
       />
       <StylesProvider jss={jss}>
         <MuiThemeProvider theme={createTheme(theme)}>
