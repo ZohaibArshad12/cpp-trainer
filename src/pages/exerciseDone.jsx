@@ -28,14 +28,14 @@ function ExersiceDone() {
       </Typography>
      <div style={{display:"flex"}}>
       <Typography variant="h4" gutterBottom style={{marginTop:"10px"}}>
-       Exercise Title (difficulty) 
+       24 game  (Advanced) 
       </Typography>
       <FaCheckCircle style={{color:"green",marginTop:"5px",marginLeft:"10px"}} size={30}/>
      </div>
       <Split
         className="flex"
         style={{ height: "80%", display: "flex", marginTop: "10px" }}
-        sizes={[40, 60]}
+        sizes={[30, 70]}
       >
         <div className="description" style={{ padding: "20px" }}>
           <Problem />
