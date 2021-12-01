@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import styled, { css } from "styled-components/macro";
-import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+import styled, { css } from 'styled-components/macro';
+import { Link } from 'react-router-dom';
 
-import { green, grey, indigo } from "@mui/material/colors";
-import { Alert } from "@mui/lab";
-import { Palette as PaletteIcon } from "@mui/icons-material";
+import { green, grey, indigo } from '@mui/material/colors';
+import { Alert } from '@mui/lab';
+import { Palette as PaletteIcon } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -13,10 +13,10 @@ import {
   Grid,
   ListItemButton,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 
-import { THEMES } from "../constants";
-import useTheme from "../hooks/useTheme";
+import { THEMES } from '../constants';
+import useTheme from '../hooks/useTheme';
 
 const DemoButton = styled.div`
   cursor: pointer;
@@ -97,7 +97,7 @@ const Heading = styled(ListItemButton)`
   font-family: ${(props) => props.theme.typography.fontFamily};
   min-height: 56px;
 
-  ${(props) => props.theme.breakpoints.up("sm")} {
+  ${(props) => props.theme.breakpoints.up('sm')} {
     min-height: 64px;
   }
 `;
@@ -134,7 +134,7 @@ function Demos() {
         <Grid container spacing={3}>
           <Demo title="Dark" themeVariant={THEMES.DARK} />
           <Demo title="Light" themeVariant={THEMES.LIGHT} />
-          <Demo title="Default" themeVariant={THEMES.DEFAULT} />
+          {/* <Demo title="Default" themeVariant={THEMES.DEFAULT} /> */}
         </Grid>
       </Box>
     </Wrapper>

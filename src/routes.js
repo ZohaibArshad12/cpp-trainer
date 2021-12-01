@@ -1,23 +1,27 @@
-import React from "react";
-import DashboardLayout from "./layouts/Dashboard";
-import ExersiceList from "./pages/exersiceList";
-import Exersice from "./pages/exersice";
-import ExersiceDone from "./pages/exerciseDone";
+import React from 'react';
+import DashboardLayout from './layouts/Dashboard';
+import ExersiceList from './pages/exersiceList';
+import Exersice from './pages/exersice';
+import ExersiceDone from './pages/exerciseDone';
 const routes = [
   {
-    path: "/",
+    path: '/',
     element: <DashboardLayout />,
     children: [
       {
-        path: "Exercise-list",
+        path: '/',
         element: <ExersiceList />,
       },
       {
-        path: "exersice",
+        path: 'Exercise-list',
+        element: <ExersiceList />,
+      },
+      {
+        path: 'exersice',
         element: <Exersice />,
       },
       {
-        path: "exersice-done",
+        path: 'exersice-done',
         element: <ExersiceDone />,
       },
     ],
