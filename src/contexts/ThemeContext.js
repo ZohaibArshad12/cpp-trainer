@@ -1,16 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { THEMES } from "../constants";
+import { THEMES } from '../constants';
 
 const initialState = {
-  theme: THEMES.DEFAULT,
+  theme: THEMES.LIGHT,
   setTheme: (theme) => {},
 };
 const ThemeContext = React.createContext(initialState);
 
 function ThemeProvider({ children }) {
   const initialState = () => {
-    const storedTheme = localStorage.getItem("theme");
+    const storedTheme = localStorage.getItem('theme');
 
     return storedTheme ? JSON.parse(storedTheme) : THEMES.DEFAULT;
   };
@@ -18,7 +18,7 @@ function ThemeProvider({ children }) {
   const [theme, _setTheme] = React.useState(initialState());
 
   const setTheme = (theme) => {
-    localStorage.setItem("theme", JSON.stringify(theme));
+    localStorage.setItem('theme', JSON.stringify(theme));
     _setTheme(theme);
   };
 
