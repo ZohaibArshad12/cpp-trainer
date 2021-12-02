@@ -17,10 +17,30 @@ import "../css/split.css";
 import Problem from "../components/Problem";
 import CodeEditor from "../components/CodeEditor";
 import { FaCheckCircle } from "react-icons/fa";
+import "../css/overlay.css";
+import "../css/buttons.css";
+import Buttons from "../components/Buttons";
+import Tabs from "../components/Tab";
+import {FaExpandArrowsAlt} from "react-icons/fa";
 
 function ExersiceDone() {
 
-
+    const [expand,setExpand]=useState(false);
+  
+    useEffect(() => {
+      console.log("useeffect",expand);
+    },[expand]);
+  
+  
+    const expandEditor = () =>{
+      
+      setExpand(true);
+      console.log("setting true");
+      const navbar = document.getElementsByTagName("header");
+      navbar[0].style.display="none";
+  
+      
+    }
   return (
     <>
       <Typography variant="h3" gutterBottom >
@@ -38,35 +58,17 @@ function ExersiceDone() {
         sizes={[30, 70]}
       >
         <div className="description" style={{ padding: "20px" }}>
-          <Problem />
+          <Tabs />
         </div>
 
         <div className="editor" style={{ padding: "20px" }}>
-          <CodeEditor />
+          <Button className="expand" onClick={()=>expandEditor()}><FaExpandArrowsAlt  size={20}/></Button>
+          <CodeEditor classname={`expand-overlay${expand ? "-content" : ""}`} setexpand={setExpand} />
         </div>
+
       </Split>
 
-      <div className="buttons">
-        
-        
-          <Button variant="contained" >Reset</Button>
-         
-        
-          <Button
-            variant="contained"
-            color="success"
-            className="run"
-          >
-            Run
-          </Button>
-          
-         
-          <Button variant="contained"  className="test">
-            Test
-          </Button>
-          
-        
-      </div>
+      <Buttons classname="buttons"/>
     </>
   );
 }

@@ -15,16 +15,8 @@
   cursor: col-resize;
 }
 
-.buttons {
 
-  margin-top: 5px;
-  width: 69%;
-  float: right;
-}
-textarea {
-  width: 100%;
-  height: 80%;
-}
+
 .description,
 .editor {
   border: 2px solid;
@@ -36,15 +28,3 @@ textarea {
 .description{
   overflow:hidden;
 } 
-button.run{
-margin-left: 200px;
-}
-button.test{
-  margin-left: 50px;
-  }
-
-@media only screen and (max-width: 694px) {
-  button.run{
-    margin-left: 50px;
-    }
-  }

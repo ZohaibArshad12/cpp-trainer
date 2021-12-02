@@ -10,16 +10,36 @@ import {
   CardHeader as MuiCardHeader,
   Divider as MuiDivider,
   Typography,
+  AppBar as MuiAppBar,
 } from "@mui/material";
-import { spacing } from "@mui/system";
 import Split from "react-split";
 import "../css/split.css";
-import Problem from "../components/Problem";
+import Tabs from "../components/Tab";
 import CodeEditor from "../components/CodeEditor";
-import { FaCheckCircle } from "react-icons/fa";
+import {FaExpandArrowsAlt} from "react-icons/fa";
+import "../css/overlay.css";
+import "../css/buttons.css";
+import Buttons from "../components/Buttons";
+
+
 
 function Exersice({}) {
+  const [expand,setExpand]=useState(false);
+  
+  useEffect(() => {
+    console.log("useeffect",expand);
+  },[expand]);
 
+
+  const expandEditor = () =>{
+    
+    setExpand(true);
+    console.log("setting true");
+    const navbar = document.getElementsByTagName("header");
+    navbar[0].style.display="none";
+
+    
+  }
 
   return (
     <>
@@ -36,36 +56,17 @@ function Exersice({}) {
         style={{ height: "80%", display: "flex", marginTop: "10px" }}
         sizes={[30, 70]}
       >
-        <div className="description" style={{ padding: "20px" }}>
-          <Problem />
+        <div className="description" style={{ padding: "20px",height: "100%" }}>
+          <Tabs />
         </div>
 
         <div className="editor" style={{ padding: "20px" }}>
-          <CodeEditor />
+          <Button className="expand" onClick={()=>expandEditor()}><FaExpandArrowsAlt  size={20}/></Button>
+          <CodeEditor classname={`expand-overlay${expand ? "-content" : ""}`} setexpand={setExpand} />
         </div>
       </Split>
 
-      <div className="buttons">
-        
-        
-          <Button variant="contained" >Reset</Button>
-         
-        
-          <Button
-            variant="contained"
-            color="success"
-            className="run"
-          >
-            Run
-          </Button>
-          
-         
-          <Button variant="contained"  className="test">
-            Test
-          </Button>
-          
-        
-      </div>
+      <Buttons classname="buttons"/>
     </>
   );
 }

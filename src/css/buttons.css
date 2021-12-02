@@ -1,0 +1,25 @@
+button.run{
+    margin-left: 200px;
+    }
+button.test{
+      margin-left: 50px;
+      }
+    
+@media only screen and (max-width: 694px) {
+      button.run{
+        margin-left: 50px;
+        }
+      }
+    
+button.expand{
+        float: right;
+        border: none;
+        background-color: transparent;
+    
+    }
+.buttons {
+
+        margin-top: 5px;
+        width: 69%;
+        float: right;
+      }

@@ -55,7 +55,7 @@ function ExersiceList() {
 
       <Grid container justifyContent="center">
         <Grid item xs={12} lg={10}>
-          <Grid container spacing={6} alignItems="flex-end">
+          <Grid container spacing={6} alignItems="stretch">
             <Grid item xs={12} md={4}>
              <MyCard title={"Beginner"} exersice={Beginner}/>
             </Grid>
