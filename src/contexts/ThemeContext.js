@@ -12,7 +12,7 @@ function ThemeProvider({ children }) {
   const initialState = () => {
     const storedTheme = localStorage.getItem('theme');
 
-    return storedTheme ? JSON.parse(storedTheme) : THEMES.DEFAULT;
+    return storedTheme ? JSON.parse(storedTheme) : THEMES.LIGHT;
   };
 
   const [theme, _setTheme] = React.useState(initialState());

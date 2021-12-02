@@ -53,10 +53,10 @@ function ExersiceList() {
 
       <Divider my={6} />
 
-      <Grid container justifyContent="center">
-        <Grid item xs={12} lg={10}>
-          <Grid container spacing={6} alignItems="stretch">
-            <Grid item xs={12} md={4}>
+      <Grid container xs={12} lg={10} spacing={6} justifyContent="center" >
+        {/* <Grid item xs={12} lg={10}>
+           <Grid container  alignItems="stretch">*/}
+            <Grid item xs={12} md={4}> 
              <MyCard title={"Beginner"} exersice={Beginner}/>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -65,8 +65,8 @@ function ExersiceList() {
             <Grid item xs={12} md={4}>
             <MyCard title={"Advanced"} exersice={Advanced}/>
             </Grid>
-          </Grid>
-        </Grid>
+          {/* </Grid>
+        </Grid> */}
       </Grid>
     </React.Fragment>
   );

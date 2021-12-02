@@ -46,7 +46,7 @@ export default function MyTabs() {
   };
 
   return (
-    <Box sx={{ width: '100%',minHeight:"600px" }}>
+    <Box sx={{ width: '100%', }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Description" {...a11yProps(0)} />

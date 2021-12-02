@@ -40,7 +40,7 @@ function MyCard({title,exersice}) {
     }
 
   return (
-    <div className="exercise" style={{height:"100%"}}>
+    <div className="exercise" >
        <Typography variant="h4" gutterBottom style={{textAlign:"center"}}>
         {title}
       </Typography>
